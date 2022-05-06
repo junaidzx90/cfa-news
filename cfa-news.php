@@ -16,7 +16,7 @@
  * Plugin Name:       CFA News
  * Plugin URI:        https://www.example.com
  * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Developer Junayed
  * Author URI:        https://www.example.com/unknown
  * License:           GPL-2.0+
@@ -37,7 +37,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/OpenGraph.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'CFA_NEWS_VERSION', '1.0.0' );
+define( 'CFA_NEWS_VERSION', '1.0.1' );
 
 
 function get_image_to_base64($url){
@@ -51,7 +51,7 @@ function get_image_to_base64($url){
 		$responsecode = intval($matches[0]);
 
 		if ($responsecode === 200){
-			$image_url = 'data:image/jpg;base64,'.base64_encode($image);
+			$image_url = base64_encode($image);
 		}
 	} catch (\Throwable $th) {
 		//throw $th;
@@ -67,12 +67,6 @@ function activate_cfa_news() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-cfa-news-activator.php';
 	Cfa_News_Activator::activate();
 }
-
-if( ! class_exists( 'WP_List_Table' ) ) {
-	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
-}
-
-require_once plugin_dir_path( __FILE__ ) . 'includes/class-news-table.php';
 
 /**
  * The code that runs during plugin deactivation.

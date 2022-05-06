@@ -70,7 +70,7 @@ class Cfa_News {
 		if ( defined( 'CFA_NEWS_VERSION' ) ) {
 			$this->version = CFA_NEWS_VERSION;
 		} else {
-			$this->version = '1.0.0';
+			$this->version = '1.0.1';
 		}
 		$this->plugin_name = 'cfa-news';
 
@@ -158,13 +158,13 @@ class Cfa_News {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
 
+		$this->loader->add_action( 'add_meta_boxes_post', $plugin_admin, 'news_url_metabox' );
+		$this->loader->add_filter( 'the_content', $plugin_admin, 'add_see_full_content_button', 99 );
+
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menupage' );
 		
 		$this->loader->add_action( 'wp_ajax_url_to_cfa_news', $plugin_admin, 'url_to_cfa_news' );
 		$this->loader->add_action( 'wp_ajax_nopriv_url_to_cfa_news', $plugin_admin, 'url_to_cfa_news' );
-		
-		$this->loader->add_action( 'wp_ajax_regenrate_news', $plugin_admin, 'regenrate_news' );
-		$this->loader->add_action( 'wp_ajax_nopriv_regenrate_news', $plugin_admin, 'regenrate_news' );
 		
 	}
 

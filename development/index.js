@@ -29,7 +29,6 @@ const cfanews = new Vue({
 					
 					if (response.success) {
 						cfanews.cfaNewsObj = response.success;
-						cfanews.currentPage = cfanews.cfaNewsObj.length;
 					}
 
                     if (response.numrows) {
@@ -50,7 +49,7 @@ const cfanews = new Vue({
 					action: "get_news_data",
 					nonce: cfa_news_ajax.nonce,
 					filter: cfanews.currentFilter,
-					page: cfanews.currentPage
+					page: (cfanews.currentPage+1)
 				},
 				beforeSend: function(){
 					cfanews.isDisabled = true;
@@ -63,7 +62,7 @@ const cfanews = new Vue({
 							response.success.forEach(element => {
 								cfanews.cfaNewsObj.push(element);
 							});
-							cfanews.currentPage = cfanews.cfaNewsObj.length;
+							cfanews.currentPage +=1;
 						}
 					}
 					if (response.numrows) {

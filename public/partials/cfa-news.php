@@ -6,16 +6,29 @@
             <div class="years_btns">
                 <?php
                 echo '<span @click="news_year_filter(event, \'all\')" class="yrbtn year cfaActive">All</span>';
+                $cat = ((get_option( 'cfa_news_category' )) ? get_option( 'cfa_news_category' ) : 1);
+                $args = array(
+                    'post_type' => 'post',
+                    'post_status' => 'publish',
+                    'category' => [$cat],
+                    'numberposts' => -1,
+                    'orderby' => 'date',
+                    'order'     => 'DESC',
+                    'fields'    => 'ids',
+                    // 'meta_query' => array(
+                    //     array(
+                    //         'key' => 'cfa_news_url',
+                    //         'compare' => 'EXISTS'
+                    //     )
+                    // )
+                );
 
-                global $wpdb;
-                $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}cfa_news");
+                $results = get_posts($args);
 
                 $dates = [];
                 if($results){
                     foreach($results as $news){
-                        $newsDate = $news->date;
-
-                        $date = date("j F, Y", strtotime($newsDate));
+                        $date = get_the_date( 'j F, Y', $news );
 
                         $year = explode(', ', $date)[1];
                         $dates[$year] = $year;
@@ -44,19 +57,19 @@
 
             <div class="_content">
                 <div class="news__info">
-                    <h3 class="head3">{{news.title}}</h3>
+                    <h3 class="head3" v-html="news.title"></h3>
                     <p class="cfa_news__date">{{news.date}}</p>
                     <p class="news-excerpt" v-html="news.description"></p>
 
                     <a :href="news.url" target="_blank" class="readmorenews">Read More</a>
                 </div>
-                <div class="news__image">
-                    <img :src="news.image" alt="thumbnail-img">
+                <div v-bind:style="{ backgroundImage: 'url(' + news.image + ')' }" class="news__image">
+                    <!-- <img :src="news.image" alt="thumbnail-img"> -->
                 </div>
             </div>
         </div> <!-- // News -->
 
-        <div v-if="cfaNewsObj.length === 0" class="cfa_news_alert">No news are found.</div>
+        <div v-if="cfaNewsObj.length === 0" class="cfa_news_alert">Sorry, there are no news items to show right now.</div>
 
         <div v-if="numrows > currentPage" class="loadmore_news_box">
             <button @click="loadmore_news()" class="loadmore_news">Load More</button>

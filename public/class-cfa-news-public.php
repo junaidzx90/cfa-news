@@ -77,10 +77,8 @@ class Cfa_News_Public {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-		global $post;
-		if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'cfa_news') ) {
-			wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/style.css', array(), $this->version, 'all' );
-		}
+
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/style.css', array(), $this->version, 'all' );
 	}
 
 	/**
@@ -140,76 +138,71 @@ class Cfa_News_Public {
 			die("Invalid Request!");
 		}
 
-		$page = 0;
+		global $wpdb;
+
+		$page = 1;
 		if(isset($_GET['page'])){
 			$page = intval($_GET['page']);
 		}
 
-		$filter = '';
-		if(isset($_GET['filter'])){
-			$filter = $_GET['filter'];
-		}
-
-		global $wpdb;
-
 		$perload = ((get_option('cfa_news_perload')) ? get_option('cfa_news_perload') : 5);
 
-		if(!empty($filter) && $filter !== 'all'){
-			$results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}cfa_news WHERE date LIKE '$filter%' ORDER BY date DESC LIMIT $page, $perload");
+		$args = array(
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'cat' => ((get_option( 'cfa_news_category' )) ? get_option( 'cfa_news_category' ) : 1),
+			'posts_per_page' => $perload,
+			'paged' => $page,
+			'orderby' => 'date',
+			'order'     => 'DESC'
+		);
 
-			$total_rows = $wpdb->query("SELECT * FROM {$wpdb->prefix}cfa_news WHERE date LIKE '$filter%'");
-		}else{
-			$results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}cfa_news ORDER BY date DESC LIMIT $page, $perload");
+		if(isset($_GET['filter']) && !empty($_GET['filter'])){
+			$filter = $_GET['filter'];
 
-			$total_rows = $wpdb->query("SELECT * FROM {$wpdb->prefix}cfa_news");
+			if($filter !== 'all'){
+				$args['date_query'] = array(
+					array(
+						'year' => $filter
+					),
+				);
+			}
+			
 		}
 
+		$newsData = array();
+		$results = new WP_Query( $args );
+		
+		$len = ((get_option('news_excerpt_length')) ? get_option('news_excerpt_length') : 10);
+				
+		if ( $results->have_posts() ){
+			while ( $results->have_posts() ){
+				$results->the_post();
+				$post_id = get_post()->ID;
 
-		$num_rows = $total_rows;
-		$newsData = [];
-		if($results){
-			foreach($results as $news){
+				$exerpt_txt = $wpdb->get_var("SELECT post_excerpt FROM {$wpdb->prefix}posts WHERE ID = $post_id");
+				$excerpt = wp_trim_words($exerpt_txt, $len);
 
-				$newsUrl = null;
-				$newsTitle = null;
-				$newsDate = null;
-				$newsImage = null;
-				$newsDescription = null;
-
-				$newsUrl = $news->news_url;
-				$newsDate = $news->date;
-
-				$data = $news->data;
-				if(!empty($data)){
-					$data = unserialize($data);
-					if(array_key_exists('title', $data)){
-						$newsTitle = $data['title'];
-					}
-					if(array_key_exists('description', $data)){
-						$newsDescription = $data['description'];
-					}
-					if(array_key_exists('image', $data)){
-						$newsImage = $data['image'];
-					}
-				}
+				$newsURL = get_post_meta(get_post()->ID, 'cfa_news_url', true);
 
 				$newsArr = array(
-					'id' => $news->ID,
-					'url' => $newsUrl,
-					'title' => $newsTitle,
-					'image' => $newsImage,
-					'description' => $newsDescription,
-					'date_line' => date("F, Y", strtotime($newsDate)),
-					'date' => date("F j, Y", strtotime($newsDate))
+					'id' => get_post()->ID,
+					'url' => (($newsURL) ? $newsURL : get_the_permalink( get_post()->ID )),
+					'title' => get_the_title(),
+					'image' => get_the_post_thumbnail_url( get_post()->ID ),
+					'description' => $excerpt,
+					'date_line' => get_the_date( "F, Y", get_post()->ID ),
+					'date' => get_the_date( "F j, Y", get_post()->ID )
 				);
 
 				$newsData[] = $newsArr;
 			}
+			wp_reset_postdata();
 		}
 
 		echo json_encode(array(
 			"success" => $newsData, 
-			'numrows' => $num_rows
+			'numrows' => $results->max_num_pages
 		));
 		die;
 	}

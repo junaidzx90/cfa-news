@@ -1,3 +1,10 @@
+.readarticleBox {
+    margin-top: 20px;
+}
+a.readfullarticle {
+    text-decoration: underline;
+}
+
 #cfa_news{
     .cfa_news_alert {
         display: flex;
@@ -49,7 +56,7 @@
         display: flex;
         flex-direction: column;
         .cfa__news{
-            margin-bottom: 20px;
+            margin-bottom: 40px;
             .top-date {
                 display: flex;
                 gap: 10px;
@@ -60,9 +67,10 @@
                     font-weight: 500;
                     min-width: 165px;
                     color: #454545;
+                    margin: 0;
                 }
                 span.date__line {
-                    height: 2px;
+                    height: 1px;
                     width: calc(100% - 165px);
                     background-color: #b4b4b4;
                 }
@@ -73,10 +81,12 @@
                 gap: 50px;
                 margin: 20px 0 0;
                 @media screen and (max-width: 580px) {
-                    flex-direction: column;
+                    flex-direction: column-reverse;
+                    height: auto;
+                    gap: 20px;
                 }
                 .news__info {
-                    width: 65%;
+                    width: 70%;
                     @media screen and (max-width: 580px) {
                         width: 100%;
                     }
@@ -86,6 +96,8 @@
                         font-weight: var(--cfa_news_title_font_weight);
                         padding: 0;
                         margin: 0 0 8px;
+                        line-height: 22px;
+
                     }
                     p.cfa_news__date {
                         padding: 0;
@@ -123,11 +135,14 @@
                     }
                 }
                 .news__image {
-                    width: 35%;
-                    max-height: 165px;
+                    width: 30%;
+                    height: 222px;
                     display: flex;
                     align-items: center;
                     overflow: hidden;
+                    background-position: bottom;
+                    background-repeat: no-repeat;
+                    background-size: cover;
                     @media screen and (max-width: 580px) {
                         width: 100%;
                         max-height: 270px;
