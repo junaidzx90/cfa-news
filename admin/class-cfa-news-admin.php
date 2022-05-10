@@ -181,7 +181,8 @@ class Cfa_News_Admin {
 	}
 
 	function cfa_news_shortcode_cb(){
-		echo '<input type="text" readonly value="[cfa_news]">';
+		echo '<input style="width: 220px" type="text" readonly value=\'[cfa_news category="example"]\'>';
+		echo '<p><strong>Parameter:</strong> category</p>';
 	}
 	
 	function cfa_scrapfly_api_cb(){
@@ -207,6 +208,7 @@ class Cfa_News_Admin {
 			}
 			echo '</select>';
 		}
+		echo '<p>Required for creating news</p>';
 	}
 
 	function cfa_news_static_color_cb(){

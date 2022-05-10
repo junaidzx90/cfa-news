@@ -1,12 +1,12 @@
 <div id="cfa_news">
-    
     <div class="cfa__news_filter">
         <p>Sort by year</p>
         <div class="years_filter">
             <div class="years_btns">
                 <?php
                 echo '<span @click="news_year_filter(event, \'all\')" class="yrbtn year cfaActive">All</span>';
-                $cat = ((get_option( 'cfa_news_category' )) ? get_option( 'cfa_news_category' ) : 1);
+                $cat = get_cat_ID($atts['category']);
+                
                 $args = array(
                     'post_type' => 'post',
                     'post_status' => 'publish',
@@ -50,8 +50,8 @@
     <div class="cfa_news__contents">
         <!-- News -->
         <div v-for="news in cfaNewsObj" :key="news.id" class="cfa__news">
-            <div class="top-date">
-                <p>{{news.date_line}}</p>
+            <div v-if="news.line" class="top-date">
+                <p>{{news.line}}</p>
                 <span class="date__line"></span>
             </div>
 
@@ -70,7 +70,7 @@
         </div> <!-- // News -->
 
         <div v-if="cfaNewsObj.length === 0" class="cfa_news_alert">Sorry, there are no news items to show right now.</div>
-
+        
         <div v-if="numrows > currentPage" class="loadmore_news_box">
             <button @click="loadmore_news()" class="loadmore_news">Load More</button>
         </div>

@@ -70,7 +70,7 @@ class Cfa_News {
 		if ( defined( 'CFA_NEWS_VERSION' ) ) {
 			$this->version = CFA_NEWS_VERSION;
 		} else {
-			$this->version = '1.0.1';
+			$this->version = '1.0.3';
 		}
 		$this->plugin_name = 'cfa-news';
 

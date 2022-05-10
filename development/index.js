@@ -5,7 +5,8 @@ const cfanews = new Vue({
         cfaNewsObj: [],
 		currentFilter: '',
 		currentPage: 1,
-		numrows: 0
+		numrows: 0,
+		storeLines: []
     },
     methods: {
 		news_year_filter: function(event, year){
@@ -18,6 +19,7 @@ const cfanews = new Vue({
 				data: {
 					action: "get_news_data",
 					nonce: cfa_news_ajax.nonce,
+					category: cfa_news_ajax.category,
 					filter: cfanews.currentFilter
 				},
 				beforeSend: function(){
@@ -48,6 +50,7 @@ const cfanews = new Vue({
 				data: {
 					action: "get_news_data",
 					nonce: cfa_news_ajax.nonce,
+					category: cfa_news_ajax.category,
 					filter: cfanews.currentFilter,
 					page: (cfanews.currentPage+1)
 				},
@@ -72,15 +75,23 @@ const cfanews = new Vue({
 			});
 		}
     },
+	updated: function(){
+		cfanews.cfaNewsObj.map(el => {
+			if(!cfanews.storeLines.includes(el.date_line)){
+				cfanews.storeLines.push(el.date_line);
+				el.line = el.date_line;
+			}
+		})
+	},
     mounted: function () {
-
 		let cfaNews = new Promise((resolve, reject) => {
 			jQuery.ajax({
 				type: "get",
 				url: cfa_news_ajax.ajaxurl,
 				data: {
 					action: "get_news_data",
-					nonce: cfa_news_ajax.nonce
+					nonce: cfa_news_ajax.nonce,
+					category: cfa_news_ajax.category
 				},
 				dataType: "json",
 				success: function (response) {
@@ -93,7 +104,6 @@ const cfanews = new Vue({
 			cfanews.isDisabled = false;
             if (response.success) {
                 cfanews.cfaNewsObj = response.success;
-				cfanews.currentPage = cfanews.cfaNewsObj.length;
             }
             if (response.numrows) {
                 cfanews.numrows = response.numrows;

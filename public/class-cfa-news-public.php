@@ -104,10 +104,6 @@ class Cfa_News_Public {
 		if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'cfa_news') ) {
 			wp_enqueue_script( 'cfavue', plugin_dir_url( __FILE__ ) . 'js/vue.min.js', array(  ), $this->version, false );
 			wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/index.js', array( 'jquery', 'cfavue' ), $this->version, true );
-			wp_localize_script( $this->plugin_name, 'cfa_news_ajax', array(
-				'ajaxurl' => admin_url( "admin-ajax.php" ),
-				'nonce'	=> wp_create_nonce( "news_nonce" )
-			) );
 		}
 	}
 
@@ -138,6 +134,11 @@ class Cfa_News_Public {
 			die("Invalid Request!");
 		}
 
+		if(!isset($_GET['category'])){
+			return;
+			die;
+		}
+
 		global $wpdb;
 
 		$page = 1;
@@ -146,11 +147,12 @@ class Cfa_News_Public {
 		}
 
 		$perload = ((get_option('cfa_news_perload')) ? get_option('cfa_news_perload') : 5);
+		$cat_id = intval($_GET['category']);
 
 		$args = array(
 			'post_type' => 'post',
 			'post_status' => 'publish',
-			'cat' => ((get_option( 'cfa_news_category' )) ? get_option( 'cfa_news_category' ) : 1),
+			'cat' => [$cat_id],
 			'posts_per_page' => $perload,
 			'paged' => $page,
 			'orderby' => 'date',
@@ -191,6 +193,7 @@ class Cfa_News_Public {
 					'title' => get_the_title(),
 					'image' => get_the_post_thumbnail_url( get_post()->ID ),
 					'description' => $excerpt,
+					'line' => '',
 					'date_line' => get_the_date( "F, Y", get_post()->ID ),
 					'date' => get_the_date( "F j, Y", get_post()->ID )
 				);
@@ -207,9 +210,30 @@ class Cfa_News_Public {
 		die;
 	}
 
-	function cfa_news_callback(){
+	function cfa_news_callback($atts){
 		ob_start();
-		require_once plugin_dir_path( __FILE__ ). 'partials/cfa-news.php';
+		$atts = shortcode_atts(
+			array(
+				'category' => '',
+			), $atts, 'cfa_news' 
+		);
+		
+		if(empty($atts['category'])){
+			return;
+		}
+
+		wp_localize_script( $this->plugin_name, 'cfa_news_ajax', array(
+			'ajaxurl' => admin_url( "admin-ajax.php" ),
+			'nonce'	=> wp_create_nonce( "news_nonce" ),
+			'category' => get_cat_ID($atts['category'])
+		) );
+		
+		if(is_admin(  )){
+			require_once plugin_dir_path( __FILE__ ). 'partials/elementor-view.php';
+		}else{
+			require_once plugin_dir_path( __FILE__ ). 'partials/cfa-news.php';
+		}
+		
 		$output = ob_get_contents();
 		ob_get_clean();
 		return $output;
