@@ -12,6 +12,7 @@ const cfanews = new Vue({
 		news_year_filter: function(event, year){
 			cfanews.currentPage = 1;
             cfanews.currentFilter = year;
+			cfanews.storeLines = [];
 
             jQuery.ajax({
 				type: "get",
@@ -39,6 +40,13 @@ const cfanews = new Vue({
 
 					jQuery(document).find('.years_btns .cfaActive').removeClass('cfaActive');
 					jQuery(event.target).addClass('cfaActive');
+
+					cfanews.cfaNewsObj.map(el => {
+						if(!cfanews.storeLines.includes(el.date_line)){
+							cfanews.storeLines.push(el.date_line);
+							el.line = el.date_line;
+						}
+					});
 				}
 			});
 		},
@@ -71,17 +79,19 @@ const cfanews = new Vue({
 					if (response.numrows) {
 						cfanews.numrows = response.numrows;
 					}
+
+					cfanews.cfaNewsObj.map(el => {
+						if(!cfanews.storeLines.includes(el.date_line)){
+							cfanews.storeLines.push(el.date_line);
+							el.line = el.date_line;
+						}
+					});
 				}
 			});
 		}
     },
 	updated: function(){
-		cfanews.cfaNewsObj.map(el => {
-			if(!cfanews.storeLines.includes(el.date_line)){
-				cfanews.storeLines.push(el.date_line);
-				el.line = el.date_line;
-			}
-		})
+		
 	},
     mounted: function () {
 		let cfaNews = new Promise((resolve, reject) => {
@@ -108,6 +118,13 @@ const cfanews = new Vue({
             if (response.numrows) {
                 cfanews.numrows = response.numrows;
             }
+
+			cfanews.cfaNewsObj.map(el => {
+				if(!cfanews.storeLines.includes(el.date_line)){
+					cfanews.storeLines.push(el.date_line);
+					el.line = el.date_line;
+				}
+			});
 		});
 	}
 });
