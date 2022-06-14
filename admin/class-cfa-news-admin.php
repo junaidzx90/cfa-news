@@ -325,7 +325,7 @@ class Cfa_News_Admin {
 		$upload_dir = wp_upload_dir();
 		$upload_path = str_replace( '/', DIRECTORY_SEPARATOR, $upload_dir['path'] ) . DIRECTORY_SEPARATOR;
 		$decoded = base64_decode($image);
-		$filename = 'news.png';
+		$filename = 'news-'.rand(0,9999).'.png';
 		$hashed_filename = md5( $filename . microtime() ) . '_' . $filename;
 		$image_upload = file_put_contents( $upload_path . $hashed_filename, $decoded );
 
